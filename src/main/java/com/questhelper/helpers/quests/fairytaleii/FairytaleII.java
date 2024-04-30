@@ -172,6 +172,10 @@ public class FairytaleII extends BasicQuestHelper
 	@Override
 	public void setupRequirements()
 	{
+		thievingReq = new SkillRequirement(Skill.THIEVING, 40);
+		farmReq = new SkillRequirement(Skill.FARMING, 49, true);
+		herbReq = new SkillRequirement(Skill.HERBLORE, 57, true);
+
 		dramenOrLunarStaff = new ItemRequirement("Dramen or lunar staff", ItemID.DRAMEN_STAFF).isNotConsumed();
 		dramenOrLunarStaff.addAlternates(ItemID.LUNAR_STAFF);
 		dramenOrLunarStaff.setDisplayMatchedItemName(true);
@@ -208,9 +212,6 @@ public class FairytaleII extends BasicQuestHelper
 		inStarPlane = new ZoneRequirement(starPlane);
 		inGorakPlane = new ZoneRequirement(gorakPlane);
 
-		thievingReq = new SkillRequirement(Skill.THIEVING, 40);
-		farmReq = new SkillRequirement(Skill.FARMING, 49, true);
-		herbReq = new SkillRequirement(Skill.HERBLORE, 57, true);
 
 		// Started, 2333 0->1
 
@@ -401,7 +402,7 @@ public class FairytaleII extends BasicQuestHelper
 	@Override
 	public List<ItemReward> getItemRewards()
 	{
-		return Collections.singletonList(new ItemReward("2,500 Experience Lamps (Any skill over level 30.)", ItemID.ANTIQUE_LAMP, 2)); //4447 Is placeholder for filter.
+		return Collections.singletonList(new ItemReward("2,500 Experience Lamp (Any skill over level 30.)", ItemID.ANTIQUE_LAMP, 1));
 	}
 
 	@Override

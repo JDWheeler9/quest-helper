@@ -160,8 +160,6 @@ public class QuestStepPanel extends JPanel
 		{
 			collapse();
 		}
-
-		updateHighlightCheck(client, currentStep, quest);
 	}
 
 	public void addRequirements(String text, List<Requirement> reqs, String borderLayout)
@@ -188,7 +186,7 @@ public class QuestStepPanel extends JPanel
 
 		for (Requirement req : reqs)
 		{
-			QuestRequirementPanel reqPanel = new QuestRequirementPanel(req);
+			QuestRequirementPanel reqPanel = new QuestRequirementPanel(req, null);
 			requirementPanels.add(reqPanel);
 			questRequirementsListPanel.add(new QuestRequirementWrapperPanel(reqPanel));
 		}
@@ -203,8 +201,11 @@ public class QuestStepPanel extends JPanel
 	{
 		StringBuilder text = new StringBuilder();
 
-		step.getText().forEach(line -> text.append(line).append("<br><br>"));
-		text.replace(text.length()-8, text.length(), "");
+		if (step.getText() != null)
+		{
+			step.getText().forEach(line -> text.append(line).append("<br><br>"));
+			text.replace(text.length() - 8, text.length(), "");
+		}
 
 		return "<html><body style='text-align:left'>" + text + "</body></html>";
 	}

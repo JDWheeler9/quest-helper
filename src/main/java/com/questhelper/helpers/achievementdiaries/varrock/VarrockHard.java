@@ -46,6 +46,7 @@ import com.questhelper.rewards.ItemReward;
 import com.questhelper.rewards.UnlockReward;
 import com.questhelper.steps.*;
 
+import com.questhelper.util.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -120,15 +121,15 @@ public class VarrockHard extends ComplexStateQuestHelper
 		doHard.addStep(notSpottyCape, spottyCapeTask);
 
 		kudosTask = new ConditionalStep(this, getKudos);
-		kudosTask.addStep(new Conditions(not153Kudos, atleast153Kudos), moveToBasement);
 		kudosTask.addStep(new Conditions(not153Kudos, inBasement, atleast153Kudos), kudos);
+		kudosTask.addStep(new Conditions(not153Kudos, atleast153Kudos), moveToBasement);
 		doHard.addStep(not153Kudos, kudosTask);
 
 		yewChurchTask = new ConditionalStep(this, cutYew);
-		yewChurchTask.addStep(new Conditions(notYewChurch, cutYewTree), goUp1);
-		yewChurchTask.addStep(new Conditions(notYewChurch, inChurch2, cutYewTree), goUp2);
-		yewChurchTask.addStep(new Conditions(notYewChurch, inChurch3, cutYewTree), goUp3);
 		yewChurchTask.addStep(new Conditions(notYewChurch, inChurch4, cutYewTree), burnLogs);
+		yewChurchTask.addStep(new Conditions(notYewChurch, inChurch3, cutYewTree), goUp3);
+		yewChurchTask.addStep(new Conditions(notYewChurch, inChurch2, cutYewTree), goUp2);
+		yewChurchTask.addStep(new Conditions(notYewChurch, cutYewTree), goUp1);
 		doHard.addStep(notYewChurch, yewChurchTask);
 
 		fancyStoneTask = new ConditionalStep(this, fancyStone);
@@ -346,15 +347,16 @@ public class VarrockHard extends ComplexStateQuestHelper
 			"Climb to the top of the Varrock Church.", yewLog, tinderBox);
 		goUp2 = new ObjectStep(this, ObjectID.STAIRCASE_11792, new WorldPoint(3259, 3488, 1),
 			"Climb the stairs.", yewLog, tinderBox);
+		goUp2.addDialogStep("Climb up");
 		goUp3 = new ObjectStep(this, ObjectID.STAIRCASE_11792, new WorldPoint(3259, 3488, 2),
 			"Climb the stairs.", yewLog, tinderBox);
+		goUp3.addDialogStep("Climb up");
 		goUp1.addSubSteps(goUp2, goUp3);
 		burnLogs = new ItemStep(this, "Burn the yew logs on top of the church.", tinderBox.highlighted(),
 			yewLog.highlighted());
 
 		fancyStone = new NpcStep(this, NpcID.ESTATE_AGENT, new WorldPoint(3240, 3475, 0),
-			"TALK to the estate agent to redecorate your house to fancy stone. Must be done through dialog, NOT " +
-				"right-click.", coins.quantity(25000));
+			"Talk to the estate agent to redecorate your house to fancy stone.", coins.quantity(25000));
 		fancyStone.addDialogStep("Can you redecorate my house please?");
 		growYew = new ObjectStep(this, 8513, new WorldPoint(3229, 3459, 0),
 			"Grow and check the health of a yew tree in front of Varrock palace. " +
@@ -401,7 +403,14 @@ public class VarrockHard extends ComplexStateQuestHelper
 		reqs.add(new SkillRequirement(Skill.CONSTRUCTION, 50));
 		reqs.add(new SkillRequirement(Skill.FARMING, 68, true));
 		reqs.add(new SkillRequirement(Skill.FIREMAKING, 60));
-		reqs.add(new SkillRequirement(Skill.HUNTER, 66));
+		if (Utils.getAccountType(client).isAnyIronman())
+		{
+			reqs.add(new SkillRequirement(Skill.HUNTER, 69, true));
+		}
+		else
+		{
+			reqs.add(new SkillRequirement(Skill.HUNTER, 66));
+		}
 		reqs.add(new SkillRequirement(Skill.MAGIC, 54));
 		reqs.add(new SkillRequirement(Skill.PRAYER, 52));
 		reqs.add(new SkillRequirement(Skill.WOODCUTTING, 60));

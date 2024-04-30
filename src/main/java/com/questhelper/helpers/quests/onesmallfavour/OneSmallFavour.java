@@ -356,7 +356,7 @@ public class OneSmallFavour extends BasicQuestHelper
 		draynorVillageTeleports = new ItemRequirement("Draynor Teleport with glory, 2 or more charges", ItemCollections.AMULET_OF_GLORIES);
 		lumbridgeTeleports = new ItemRequirement("Teleports to Lumbridge", ItemID.LUMBRIDGE_TELEPORT, 4);
 		varrockTeleports = new ItemRequirement("Teleports to Varrock", ItemID.VARROCK_TELEPORT, 2);
-		taverleyOrFaladorTeleports = new ItemRequirement("Teleports to Tavelery or Falador", ItemID.TAVERLEY_TELEPORT, 2);
+		taverleyOrFaladorTeleports = new ItemRequirement("Teleports to Taverley or Falador", ItemID.TAVERLEY_TELEPORT, 2);
 		camelotTeleports = new ItemRequirement("Teleports to Camelot or Catherby", ItemID.CAMELOT_TELEPORT, 2);
 		camelotTeleports.addAlternates(ItemID.CATHERBY_TELEPORT);
 		fishingGuildAndDwarvenMineTeleports = new ItemRequirement("Fishing and Mining Guild Teleport for Dwarven Mine with skills necklace, 4 or more charges", ItemID.SKILLS_NECKLACE4);
@@ -524,7 +524,7 @@ public class OneSmallFavour extends BasicQuestHelper
 		talkToYanni = new NpcStep(this, NpcID.YANNI_SALIKA, new WorldPoint(2836, 2983, 0), "Talk to Yanni Salika in Shilo Village. CKR fairy ring or take cart from Brimhaven.");
 		talkToYanni.addDialogStep("Yes.");
 		talkToYanni.addDialogSteps("Is there anything else interesting to do around here?", "Ok, see you in a tick!");
-		talkToJungleForester = new NpcStep(this, NpcID.JUNGLE_FORESTER, new WorldPoint(2861, 2942, 0), "Talk to a Jungle Forester south of Shilo Village.", bluntAxe);
+		talkToJungleForester = new NpcStep(this, new int[]{NpcID.JUNGLE_FORESTER_3955, NpcID.JUNGLE_FORESTER}, new WorldPoint(2861, 2942, 0), "Talk to a Jungle Forester south of Shilo Village.", true, bluntAxe);
 		talkToJungleForester.addDialogSteps("I'll get going then!", "I need to talk to you about red mahogany.");
 		talkToJungleForester.addDialogStep("Okay, I'll take your axe to get it sharpened.");
 		talkToBrian = new NpcStep(this, NpcID.BRIAN, new WorldPoint(3027, 3249, 0), "Talk to Brian in the Port Sarim axe shop.");
@@ -786,7 +786,7 @@ public class OneSmallFavour extends BasicQuestHelper
 		returnToBrian = new NpcStep(this, NpcID.BRIAN, new WorldPoint(3027, 3249, 0), "Return to Brian in the Port Sarim axe shop.");
 		returnToBrian.addDialogStep("I've returned with good news.");
 
-		returnToForester = new NpcStep(this, NpcID.JUNGLE_FORESTER, new WorldPoint(2861, 2942, 0), "Return to a Jungle Forester south of Shilo Village. CKR fairy ring or take cart from Brimhaven.", sharpenedAxe);
+		returnToForester = new NpcStep(this, new int[]{NpcID.JUNGLE_FORESTER_3955, NpcID.JUNGLE_FORESTER}, new WorldPoint(2861, 2942, 0), "Return to a Jungle Forester south of Shilo Village. CKR fairy ring or take cart from Brimhaven.", true, sharpenedAxe);
 		returnToForester.addDialogStep("Good news, I have your sharpened axe!");
 		returnToYanni = new NpcStep(this, NpcID.YANNI_SALIKA, new WorldPoint(2836, 2983, 0), "Return to Yanni Salika in Shilo Village.", redMahog);
 		returnToYanni.addDialogStep("Here's the red mahogany you asked for.");

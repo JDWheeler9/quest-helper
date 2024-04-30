@@ -27,6 +27,8 @@ package com.questhelper;
 import com.questhelper.panel.questorders.QuestOrders;
 import com.questhelper.questhelpers.QuestDetails;
 import com.questhelper.questhelpers.QuestHelper;
+import com.questhelper.requirements.player.SkillRequirement;
+import com.questhelper.requirements.quest.QuestRequirement;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import net.runelite.api.Skill;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -165,7 +168,7 @@ public interface QuestHelperConfig extends Config
 		@Getter
 		private final String displayName;
 
-		protected final boolean shouldDisplay;
+		private final boolean shouldDisplay;
 
 		QuestFilter(Predicate<QuestHelper> predicate)
 		{
@@ -354,6 +357,24 @@ public interface QuestHelperConfig extends Config
 
 	@ConfigSection(
 		position = 1,
+		name = "Sidebar details",
+		description = "Determines sidebar rendering"
+	)
+	String sidebarDetailsSection = "sidebarDetailsSection";
+
+	@ConfigItem(
+		keyName = "showFullRequirements",
+		name = "Show full quest requirements",
+		description = "Show all quest requirements, including requirements for sub-quests",
+		section = sidebarDetailsSection
+	)
+	default boolean showFullRequirements()
+	{
+		return false;
+	}
+
+	@ConfigSection(
+		position = 2,
 		name = "Quest Hints",
 		description = "Determines what hints should be shown"
 	)
@@ -467,6 +488,17 @@ public interface QuestHelperConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "haveMinimapArrowFlash",
+		name = "Have the minimap arrow flash",
+		description = "Choose whether the minimap direction arrow flashes",
+		section = hintsSection
+	)
+	default boolean haveMinimapArrowFlash()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "showWorldLines",
 		name = "Display navigation paths",
 		description = "Choose whether navigation paths are drawn to the next objective",
@@ -488,8 +520,16 @@ public interface QuestHelperConfig extends Config
 		return true;
 	}
 
+	@ConfigItem(
+		keyName = "solvePuzzles",
+		name = "Show Puzzle Solutions",
+		description = "Shows the solutions to quest puzzles",
+		section = hintsSection
+	)
+	default boolean solvePuzzles() { return true; }
+
 	@ConfigSection(
-		position = 1,
+		position = 3,
 		name = "Colours",
 		description = "What colour each option can be"
 	)
@@ -563,7 +603,7 @@ public interface QuestHelperConfig extends Config
 	}
 
 	@ConfigSection(
-		position = 2,
+		position = 4,
 		name = "Quest Filters",
 		description = "Determines which quests should be shown via the selected filter(s)"
 	)

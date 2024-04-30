@@ -31,8 +31,6 @@ import com.questhelper.requirements.zone.Zone;
 import com.questhelper.bank.banktab.BankSlotIcons;
 import com.questhelper.panel.PanelDetails;
 import com.questhelper.questhelpers.BasicQuestHelper;
-import com.questhelper.requirements.player.Favour;
-import com.questhelper.requirements.player.FavourRequirement;
 import com.questhelper.requirements.player.InInstanceRequirement;
 import com.questhelper.requirements.item.ItemRequirement;
 import com.questhelper.requirements.quest.QuestRequirement;
@@ -91,14 +89,11 @@ public class TheDepthsOfDespair extends BasicQuestHelper
 
 		Map<Integer, QuestStep> steps = new HashMap<>();
 
-		ConditionalStep goTalkToLordKandur = new ConditionalStep(this, talkToLordKandur, inVineryHouse);
-		steps.put(0, goTalkToLordKandur);
+		steps.put(0, talkToLordKandur);
 
-		ConditionalStep goTalkToChefOlivia = new ConditionalStep(this, talkToChefOlivia, inVineryHouse);
-		steps.put(1, goTalkToChefOlivia);
+		steps.put(1, talkToChefOlivia);
 
-		ConditionalStep goTalkToGalana = new ConditionalStep(this, talkToGalana, inArceuusLibrary);
-		steps.put(2, goTalkToGalana);
+		steps.put(2, talkToGalana);
 
 		ConditionalStep findAndReadTheVarlamoreEnvoy = new ConditionalStep(this, findTheVarlamoreEnvoy);
 		findAndReadTheVarlamoreEnvoy.addStep(varlamoreEnvoy.alsoCheckBank(questBank), readTheVarlamoreEnvoy);
@@ -237,7 +232,6 @@ public class TheDepthsOfDespair extends BasicQuestHelper
 		ArrayList<Requirement> req = new ArrayList<>();
 		req.add(new QuestRequirement(QuestHelperQuest.CLIENT_OF_KOUREND, QuestState.FINISHED));
 		req.add(new QuestRequirement(QuestHelperQuest.X_MARKS_THE_SPOT, QuestState.FINISHED));
-		req.add(new FavourRequirement(Favour.HOSIDIUS, 20));
 		req.add(new SkillRequirement(Skill.AGILITY, 18, false));
 		return req;
 	}
@@ -259,7 +253,6 @@ public class TheDepthsOfDespair extends BasicQuestHelper
 	{
 		return Arrays.asList(
 				new ItemReward("Coins", ItemID.COINS_995, 4000),
-				new ItemReward("Hosidius Favour Certificate", ItemID.HOSIDIUS_FAVOUR_CERTIFICATE, 1),
 				new ItemReward("A Kharedst's Memoirs page", ItemID.KHAREDSTS_MEMOIRS, 1));
 	}
 

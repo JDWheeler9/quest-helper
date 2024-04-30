@@ -74,7 +74,7 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 		sigilHighlighted, sigil2;
 
 	//Items Recommended
-	ItemRequirement combatGear, coinsForCarpet;
+	ItemRequirement combatGear, coinsForCarpet, alKharidTeleport;
 
 	Requirement inRuin, inThroneRoom,talkedToGolem, talkedToMatthew, inCircleSpot, sigilNearby, evilDaveMoved, baddenMoved,
 		reenMoved, golemMoved, golemRejected, golemReprogrammed,
@@ -225,6 +225,10 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 		book = new ItemRequirement("Demonic tome", ItemID.DEMONIC_TOME);
 		bookHighlighted = new ItemRequirement("Demonic tome", ItemID.DEMONIC_TOME);
 		bookHighlighted.setHighlightInInventory(true);
+
+		// Recommended
+		alKharidTeleport = new ItemRequirement("Al Kharid Teleport", ItemCollections.AMULET_OF_GLORIES);
+		alKharidTeleport.addAlternates(ItemCollections.RING_OF_DUELINGS);
 	}
 
 	private void setupConditions()
@@ -249,8 +253,9 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 	{
 		talkToReen = new NpcStep(this, NpcID.FATHER_REEN, new WorldPoint(3270, 3159, 0), "Talk to Father Reen outside Al Kharid bank.");
 		talkToReen.addDialogStep("That's me!");
+		talkToReen.addDialogStep("Yes.");
 		talkToBadden = new NpcStep(this, NpcID.FATHER_BADDEN, new WorldPoint(3490, 3090, 0), "Talk to Father Badden in Uzer.", silverlight, darkItems);
-		talkToBadden.addDialogSteps("Reen sent me.", "So what do you want me to do?", "How can I do that?");
+		talkToBadden.addDialogSteps("Uzer", "Reen sent me.", "So what do you want me to do?", "How can I do that?");
 		pickMushroom = new ObjectStep(this, ObjectID.BLACK_MUSHROOMS, new WorldPoint(3495, 3088, 0), "Pick up some black mushrooms.");
 		dyeSilverlight = new DetailedQuestStep(this, "Use the black mushrooms on Silverlight.", silverlightHighlighted, blackMushroomHighlighted);
 		goIntoRuin = new ObjectStep(this, ObjectID.STAIRCASE_6373, new WorldPoint(3493, 3090, 0), "Enter the Uzer ruins.", silverlightDyedEquipped, darkItems);
@@ -268,7 +273,9 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 		talkToMatthew = new NpcStep(this, NpcID.MATTHEW, new WorldPoint(2727, 4897, 2), "Talk to Matthew.");
 		talkToMatthew.addDialogStep("Do you know what happened to Josef?");
 		smeltSigil = new DetailedQuestStep(this, "Travel to any furnace with the sigil mould and silver bar and smelt a sigil.", silverBar, sigilMould);
+		smeltSigil.addTeleport(alKharidTeleport);
 		talkToGolem = new NpcStep(this, NpcID.CLAY_GOLEM_5136, new WorldPoint(3485, 3088, 0), "Talk to the Golem in Uzer.", silverlightDyed, sigil, combatGear);
+		talkToGolem.addDialogStep("Uzer");
 		talkToGolem.addDialogStep("Did you see anything happen last night?");
 		searchKiln = new SearchKilns(this);
 		readBook = new DetailedQuestStep(this, "Read the book.", bookHighlighted);
@@ -343,7 +350,7 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 	@Override
 	public List<ItemRequirement> getItemRecommended()
 	{
-		return Arrays.asList(combatGear, coinsForCarpet);
+		return Arrays.asList(combatGear, coinsForCarpet, alKharidTeleport);
 	}
 
 	@Override
@@ -376,7 +383,7 @@ public class ShadowOfTheStorm extends BasicQuestHelper
 		List<PanelDetails> allSteps = new ArrayList<>();
 
 		allSteps.add(new PanelDetails("Starting off", Collections.singletonList(talkToReen)));
-		allSteps.add(new PanelDetails("Infiltrate the cult", Arrays.asList(talkToBadden, pickMushroom, dyeSilverlight, goIntoRuin, pickUpStrangeImplement, talkToEvilDave, talkToJennifer, talkToMatthew), silverlight, darkItems));
+		allSteps.add(new PanelDetails("Infiltrate the cult", Arrays.asList(talkToBadden, pickMushroom, dyeSilverlight, goIntoRuin, pickUpStrangeImplement, talkToEvilDave, talkToDenath, talkToJennifer, talkToMatthew), silverlight, darkItems));
 		allSteps.add(new PanelDetails("Uncovering the truth", Arrays.asList(smeltSigil, talkToGolem, searchKiln, readBook, talkToMatthewAfterBook, standInCircle, readIncantation), silverBar, silverlightDyed, combatGear));
 		allSteps.add(new PanelDetails("Defeating Agrith-Naar", Arrays.asList(pickUpSigil, leavePortal, pickUpSigil2, tellDaveToReturn, talkToBaddenAfterRitual, talkToReenAfterRitual, talkToTheGolemAfterRitual, useImplementOnGolem, talkToGolemAfterReprogramming,
 			talkToMatthewToStartFight, standInCircleAgain, incantRitual, killDemon, unequipDarklight), silverlightDyed, combatGear));

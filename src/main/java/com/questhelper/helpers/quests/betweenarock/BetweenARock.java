@@ -48,6 +48,7 @@ import com.questhelper.steps.ConditionalStep;
 import com.questhelper.steps.DetailedQuestStep;
 import com.questhelper.steps.NpcStep;
 import com.questhelper.steps.ObjectStep;
+import com.questhelper.steps.PuzzleWrapperStep;
 import com.questhelper.steps.QuestStep;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,10 +73,13 @@ public class BetweenARock extends BasicQuestHelper
 		baseSchematic, schematicEngineer, khorvakSchematic, goldHelmet, hammer, goldBars3, schematicHighlight, solvedSchematic, combatGear,
 		goldOre6, goldBars4, coins1000, goldHelmetEquipped, food;
 
+	// Items Recommended
+	ItemRequirement faladorTeleport;
+
 	Requirement inTrollRoom, inDwarfEntrance, inDwarfMine, inKeldagrim, inDwarvenMine, hasUsedGoldBar, hasCannonball, shotGoldCannonball,
 		inKhorvakRoom, inRealm, avatarNearby, hasSolvedSchematic;
 
-	QuestStep enterDwarfCave, enterDwarfCave2, talkToFerryman, talkToDondakan, travelBackWithFerryman, talkToBoatman, talkToEngineer, talkToRolad, enterDwarvenMine, killScorpion,
+	DetailedQuestStep enterDwarfCave, enterDwarfCave2, talkToFerryman, talkToDondakan, travelBackWithFerryman, talkToBoatman, talkToEngineer, talkToRolad, enterDwarvenMine, killScorpion,
 		searchCart;
 	ObjectStep mineRock;
 	QuestStep goBackUpToRolad, returnToRolad, readEntireBook, travelToKeldagrim, enterDwarfCaveWithBook, enterDwarfCave2WithBook, talkToFerrymanWithBook, talkToDondakanWithBook,
@@ -202,7 +206,8 @@ public class BetweenARock extends BasicQuestHelper
 		goldCannonballHighlight = new ItemRequirement("Cannon ball", ItemID.CANNON_BALL);
 		goldCannonballHighlight.setHighlightInInventory(true);
 
-		cannonMould = new ItemRequirement("Ammo mould", ItemID.AMMO_MOULD, ItemID.DOUBLE_AMMO_MOULD);
+		cannonMould = new ItemRequirement("Ammo mould", ItemID.AMMO_MOULD, 1);
+		cannonMould.addAlternates(ItemID.DOUBLE_AMMO_MOULD);
 		cannonMould.setTooltip("You can buy one from Nulodion above the Dwarven Mine for 5 coins");
 
 		schematic = new ItemRequirement("Schematic", ItemID.SCHEMATIC);
@@ -229,6 +234,12 @@ public class BetweenARock extends BasicQuestHelper
 
 		goldBars4 = new ItemRequirement("Gold bars", ItemID.GOLD_BAR, 4);
 		coins1000 = new ItemRequirement("Coins for travelling", ItemCollections.COINS, 1000);
+
+		// Recommended
+		faladorTeleport = new ItemRequirement("Teleport to Ice Mountain", ItemCollections.COMBAT_BRACELETS);
+		faladorTeleport.addAlternates(ItemID.LASSAR_TELEPORT, ItemID.MIND_ALTAR_TELEPORT);
+		faladorTeleport.addAlternates(ItemCollections.AMULET_OF_GLORIES);
+		faladorTeleport.addAlternates(ItemID.FALADOR_TELEPORT);
 	}
 
 	public void loadZones()
@@ -284,6 +295,7 @@ public class BetweenARock extends BasicQuestHelper
 
 		talkToRolad = new NpcStep(this, NpcID.ROLAD, new WorldPoint(3022, 3453, 0),
 			"Talk to Rolad at the Ice Mountain entrance to the Dwarven Mine. If you don't have an ammo mould, buy one from Nulodion whilst you're here.", pickaxe);
+		talkToRolad.addTeleport(faladorTeleport);
 		talkToRolad.addDialogStep("I'll be back later.");
 
 		enterDwarvenMine = new ObjectStep(this, ObjectID.TRAPDOOR_11867, new WorldPoint(3019, 3450, 0), "Enter the Dwarven Mine.", pickaxe);
@@ -357,10 +369,10 @@ public class BetweenARock extends BasicQuestHelper
 		talkToKhorvak.addDialogStep("No, I've had enough of buying drinks for people!");
 		talkToKhorvak.addSubSteps(enterKhorvakRoom);
 
-		assembleSchematic = new PuzzleStep(this, schematicHighlight);
+		assembleSchematic = new PuzzleWrapperStep(this, new PuzzleStep(this, schematicHighlight), "Assemble the schematics.");
 
-		enterDwarfCaveWithHelmet = new ObjectStep(this, ObjectID.TUNNEL_5008, new WorldPoint(2732, 3713, 0), "Prepare" +
-			" to for a fight, then return to Dondakan.", coins5, goldHelmetEquipped, solvedSchematic, pickaxe,
+		enterDwarfCaveWithHelmet = new ObjectStep(this, ObjectID.TUNNEL_5008, new WorldPoint(2732, 3713, 0),
+			"Prepare for a fight, then return to Dondakan.", coins5, goldHelmetEquipped, solvedSchematic, pickaxe,
 			combatGear, food);
 		enterDwarfCave2WithHelmet = new ObjectStep(this, ObjectID.CAVE_ENTRANCE_5973, new WorldPoint(2781, 10161, 0),
 			"Prepare for a fight, then return to Dondakan.", coins5, goldHelmetEquipped, solvedSchematic, pickaxe,
@@ -401,6 +413,14 @@ public class BetweenARock extends BasicQuestHelper
 		reqs.add(hammer);
 		reqs.add(cannonMould);
 		reqs.add(coins1000);
+		return reqs;
+	}
+
+	@Override
+	public List<ItemRequirement> getItemRecommended()
+	{
+		List<ItemRequirement> reqs = new ArrayList<>();
+		reqs.add(faladorTeleport);
 		return reqs;
 	}
 
@@ -450,7 +470,7 @@ public class BetweenARock extends BasicQuestHelper
 			Collections.singletonList(talkToDondakan)));
 		allSteps.add(new PanelDetails("Research",
 			Arrays.asList(talkToEngineer, talkToRolad, enterDwarvenMine, searchCart, killScorpion, mineRock,
-				returnToRolad, readEntireBook), coins5, pickaxe));
+				returnToRolad, readEntireBook), Arrays.asList(coins5, pickaxe), List.of(faladorTeleport)));
 		allSteps.add(new PanelDetails("Experiment",
 			Arrays.asList(talkToDondakanWithBook, useGoldBarOnDondakan, makeGoldCannonball, useGoldCannonballOnDondakan),
 			cannonMould, goldBar));

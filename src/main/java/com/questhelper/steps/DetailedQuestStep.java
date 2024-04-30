@@ -37,6 +37,7 @@ import com.questhelper.requirements.item.ItemRequirement;
 import com.questhelper.steps.overlay.DirectionArrow;
 import com.questhelper.steps.overlay.WorldLines;
 import com.questhelper.steps.tools.QuestPerspective;
+import com.questhelper.util.worldmap.WorldMapAreaChanged;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -86,9 +87,6 @@ public class DetailedQuestStep extends QuestStep
 
 	@Getter
 	protected WorldPoint worldPoint;
-
-	@Setter
-	protected WorldPoint worldMapPoint;
 
 	@Setter
 	protected List<WorldPoint> linePoints;
@@ -172,12 +170,7 @@ public class DetailedQuestStep extends QuestStep
 	public void startUp()
 	{
 		super.startUp();
-		if (worldMapPoint != null)
-		{
-			mapPoint = new QuestHelperWorldMapPoint(worldMapPoint, getQuestImage());
-			worldMapPointManager.add(mapPoint);
-		}
-		else if (worldPoint != null)
+		if (worldPoint != null)
 		{
 			mapPoint = new QuestHelperWorldMapPoint(worldPoint, getQuestImage());
 			worldMapPointManager.add(mapPoint);
@@ -249,7 +242,7 @@ public class DetailedQuestStep extends QuestStep
 	public void setWorldPoint(WorldPoint worldPoint)
 	{
 		this.worldPoint = worldPoint;
-		if (worldMapPoint == null && started)
+		if (started)
 		{
 			if (mapPoint != null)
 			{
@@ -452,7 +445,7 @@ public class DetailedQuestStep extends QuestStep
 
 			WorldPoint point = mapPoint.getWorldPoint();
 
-			if (currentRender < MAX_RENDER_SIZE / 2)
+			if (currentRender < MAX_RENDER_SIZE / 2 || !getQuestHelper().getConfig().haveMinimapArrowFlash())
 			{
 				renderMinimapArrow(graphics);
 			}
@@ -487,6 +480,15 @@ public class DetailedQuestStep extends QuestStep
 		}
 	}
 
+	@Subscribe
+	public void onWorldMapAreaChanged(WorldMapAreaChanged worldMapAreaChanged)
+	{
+		if (mapPoint != null)
+		{
+			mapPoint.onWorldMapAreaChanged(worldMapAreaChanged);
+		}
+	}
+
 	@Override
 	public void makeOverlayHint(PanelComponent panelComponent, QuestHelperPlugin plugin, @NonNull List<String> additionalText, @NonNull List<Requirement> additionalRequirements)
 	{
@@ -497,48 +499,31 @@ public class DetailedQuestStep extends QuestStep
 			return;
 		}
 
-		if (!requirements.isEmpty() || !additionalRequirements.isEmpty())
-		{
-			panelComponent.getChildren().add(LineComponent.builder().left("Requirements:").build());
-		}
-		Stream<Requirement> stream = requirements.stream();
-		if (!additionalRequirements.isEmpty())
-		{
-			stream = Stream.concat(stream, additionalRequirements.stream());
-		}
-		stream
-			.distinct()
-			.filter(Objects::nonNull)
-			.map(req -> req.getDisplayTextWithChecks(client, questHelper.getConfig()))
-			.flatMap(Collection::stream)
-			.forEach(line -> panelComponent.getChildren().add(line));
-
-		if (!recommended.isEmpty())
-		{
-			panelComponent.getChildren().add(LineComponent.builder().left("Recommended:").build());
-		}
-		Stream<Requirement> streamRecommended = recommended.stream();
-		streamRecommended
-			.distinct()
-			.filter(Objects::nonNull)
-			.map(req -> req.getDisplayTextWithChecks(client, questHelper.getConfig()))
-			.flatMap(Collection::stream)
-			.forEach(line -> panelComponent.getChildren().add(line));
-
-		/* Teleports */
-		if (!teleport.isEmpty())
-		{
-			panelComponent.getChildren().add(LineComponent.builder().left("Teleport:").build());
-		}
-		Stream<Requirement> streamTeleport = teleport.stream();
-		streamTeleport
-			.distinct()
-			.map(req -> req.getDisplayTextWithChecks(client, questHelper.getConfig()))
-			.flatMap(Collection::stream)
-			.forEach(line -> panelComponent.getChildren().add(line));
+		processRequirements(Stream.concat(requirements.stream(), additionalRequirements.stream()), panelComponent, "Requirements:");
+		processRequirements(recommended.stream(), panelComponent, "Recommended:");
+		processRequirements(teleport.stream(), panelComponent, "Teleports:");
 	}
 
-	protected Widget getInventoryWidget() {
+	private void processRequirements(Stream<Requirement> requirementsStream, PanelComponent panelComponent, String title)
+	{
+		PanelComponent tmpComponent = new PanelComponent();
+
+		requirementsStream
+			.distinct()
+			.filter(Objects::nonNull)
+			.map(req -> req.getDisplayTextWithChecks(client, questHelper.getConfig()))
+			.flatMap(Collection::stream)
+			.forEach(line -> tmpComponent.getChildren().add(line));
+
+		if (tmpComponent.getChildren().size() > 0)
+		{
+			panelComponent.getChildren().add(LineComponent.builder().left(title).build());
+			panelComponent.getChildren().addAll(tmpComponent.getChildren());
+		}
+	}
+
+	protected Widget getInventoryWidget()
+	{
 		return client.getWidget(ComponentID.INVENTORY_CONTAINER);
 	}
 
@@ -562,7 +547,6 @@ public class DetailedQuestStep extends QuestStep
 				{
 					if (requirement instanceof ItemRequirement && ((ItemRequirement) requirement).getAllIds().contains(item.getItemId()))
 					{
-						;
 						highlightInventoryItem(item, baseColor, graphics);
 					}
 					// TODO: If teleport, highlight teleport in spellbook

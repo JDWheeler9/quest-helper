@@ -34,12 +34,22 @@ import com.questhelper.questhelpers.QuestHelper;
 import com.questhelper.requirements.Requirement;
 import com.questhelper.requirements.item.ItemRequirement;
 import com.questhelper.requirements.item.NoItemRequirement;
+import com.questhelper.requirements.player.SkillRequirement;
+import com.questhelper.requirements.quest.QuestPointRequirement;
+import com.questhelper.requirements.quest.QuestRequirement;
 import com.questhelper.rewards.Reward;
 import com.questhelper.steps.DetailedQuestStep;
 import com.questhelper.steps.QuestStep;
 import java.awt.event.ItemEvent;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
+import net.runelite.api.Skill;
 import net.runelite.client.ui.ColorScheme;
 import static net.runelite.client.ui.PluginPanel.PANEL_WIDTH;
 import net.runelite.client.util.LinkBrowser;
@@ -54,6 +64,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class QuestOverviewPanel extends JPanel
 {
@@ -190,7 +201,7 @@ public class QuestOverviewPanel extends JPanel
 		overviewPanel.add(generateRequirementPanel(questOverviewNotesPanel, questNoteHeader, "Notes:"));
 		overviewPanel.add(generateRequirementPanel(questRewardPanel, questRewardHeader,
 			"Rewards:"));
-		overviewPanel.add(generateRequirementPanel(externalQuestResourcesPanel, externalQuestResourcesHeader , "External Resources:"));
+		overviewPanel.add(generateRequirementPanel(externalQuestResourcesPanel, externalQuestResourcesHeader, "External Resources:"));
 
 		introPanel.add(overviewPanel, BorderLayout.NORTH);
 
@@ -218,7 +229,7 @@ public class QuestOverviewPanel extends JPanel
 					source);
 			}
 		});
-		String currentVal =  questHelperPlugin.getConfigManager().getRSProfileConfiguration(QuestHelperConfig.QUEST_BACKGROUND_GROUP, key);
+		String currentVal = questHelperPlugin.getConfigManager().getRSProfileConfiguration(QuestHelperConfig.QUEST_BACKGROUND_GROUP, key);
 		for (Enum value : values)
 		{
 			if (value.name().equals(currentVal))
@@ -301,11 +312,6 @@ public class QuestOverviewPanel extends JPanel
 
 			for (PanelDetails panelDetail : steps)
 			{
-				if (panelDetail.getHideCondition() != null && panelDetail.getHideCondition().check(questHelperPlugin.getClient()))
-				{
-					continue;
-				}
-
 				QuestStepPanel newStep = new QuestStepPanel(panelDetail, currentStep, quest, questHelperPlugin.getClient());
 				if (panelDetail.getLockingQuestSteps() != null &&
 					(panelDetail.getVars() == null
@@ -360,6 +366,7 @@ public class QuestOverviewPanel extends JPanel
 
 	public void updateHighlight(Client client, QuestStep newStep)
 	{
+		if (currentQuest == null) return;
 		questStepPanelList.forEach(panel -> {
 			panel.updateHighlightCheck(client, newStep, currentQuest);
 		});
@@ -439,8 +446,15 @@ public class QuestOverviewPanel extends JPanel
 			}
 		}
 
-		/* Non-item requirements */
-		updateRequirementsPanels(questGeneralRequirementsHeader, questGeneralRequirementsListPanel, requirementPanels, quest.getGeneralRequirements());
+		if (questHelperPlugin.getConfig().showFullRequirements())
+		{
+			/* Non-item requirements */
+			updateRequirementsPanels(questGeneralRequirementsHeader, questGeneralRequirementsListPanel, requirementPanels, getAggregatedRequirements(quest));
+		}
+		else
+		{
+			updateRequirementsPanels(questGeneralRequirementsHeader, questGeneralRequirementsListPanel, requirementPanels, quest.getGeneralRequirements());
+		}
 
 		/* Non-item recommended */
 		updateRequirementsPanels(questGeneralRecommendedHeader, questGeneralRecommendedListPanel, requirementPanels, quest.getGeneralRecommended());
@@ -470,6 +484,87 @@ public class QuestOverviewPanel extends JPanel
 		updateRewardsPanels(rewards);
 	}
 
+	private static void collectRequirements(QuestHelper quest, List<Requirement> allRequirements, Set<String> processedQuestIds)
+	{
+		if (quest.getQuest().getQuestHelper().getGeneralRequirements() == null) return;
+
+		List<Requirement> generalRequirements = quest.getQuest().getQuestHelper().getGeneralRequirements();
+		for (Requirement requirement : generalRequirements)
+		{
+			if (requirement instanceof QuestRequirement)
+			{
+				QuestRequirement subQuest = ((QuestRequirement) requirement);
+				String questId = subQuest.getQuest().getName();
+				if (processedQuestIds.contains(questId))
+				{
+					return;  // Skip processing if this quest has already been processed
+				}
+				processedQuestIds.add(questId);  // Mark this quest as processed
+
+				allRequirements.add(requirement);
+
+				collectRequirements(subQuest.getQuest().getQuestHelper(), allRequirements, processedQuestIds);
+			}
+			else
+			{
+				// Avoid adding duplicate requirements
+				if (!allRequirements.contains(requirement))
+				{
+					allRequirements.add(requirement);
+				}
+			}
+		}
+	}
+
+	public static List<Requirement> getAllRequirements(QuestHelper quest)
+	{
+		List<Requirement> allRequirements = new ArrayList<>();
+		Set<String> processedQuestIds = new HashSet<>();
+		collectRequirements(quest, allRequirements, processedQuestIds);
+		return allRequirements;
+	}
+
+	public static List<Requirement> getAggregatedRequirements(QuestHelper quest)
+	{
+		List<Requirement> allRequirements = getAllRequirements(quest);
+		Map<Skill, SkillRequirement> highestSkillRequirements = new HashMap<>();
+		int highestQuestPointRequirement = 0;
+		List<Requirement> otherRequirements = new ArrayList<>();
+
+		for (Requirement requirement : allRequirements)
+		{
+			if (requirement instanceof SkillRequirement)
+			{
+				SkillRequirement skillRequirement = (SkillRequirement) requirement;
+				Skill skill = skillRequirement.getSkill();
+				SkillRequirement existingHighest = highestSkillRequirements.get(skill);
+				if (existingHighest == null || skillRequirement.getRequiredLevel() > existingHighest.getRequiredLevel())
+				{
+					highestSkillRequirements.put(skill, skillRequirement);
+				}
+			}
+			else if (requirement instanceof QuestPointRequirement)
+			{
+				QuestPointRequirement questPointRequirement = (QuestPointRequirement) requirement;
+				if (highestQuestPointRequirement == 0 || questPointRequirement.getRequiredQuestPoints() > highestQuestPointRequirement)
+				{
+					highestQuestPointRequirement = questPointRequirement.getRequiredQuestPoints();
+				}
+			}
+			else
+			{
+				otherRequirements.add(requirement);
+			}
+		}
+
+		// Combine the highest SkillRequirements and other requirements into a single list
+		List<Requirement> aggregatedRequirements = new ArrayList<>(otherRequirements);
+		if (highestQuestPointRequirement != 0)
+			aggregatedRequirements.add(new QuestPointRequirement(highestQuestPointRequirement));
+		aggregatedRequirements.addAll(highestSkillRequirements.values());
+		return aggregatedRequirements;
+	}
+
 	private void updateRequirementsPanels(JPanel header, JPanel listPanel, List<QuestRequirementPanel> panels,
 										  List<Requirement> requirements)
 	{
@@ -477,7 +572,7 @@ public class QuestOverviewPanel extends JPanel
 		{
 			for (Requirement generalRecommend : requirements)
 			{
-				QuestRequirementPanel reqPanel = new QuestRequirementPanel(generalRecommend);
+				QuestRequirementPanel reqPanel = new QuestRequirementPanel(generalRecommend, questManager);
 				panels.add(reqPanel);
 				listPanel.add(new QuestRequirementWrapperPanel(reqPanel));
 
@@ -493,13 +588,13 @@ public class QuestOverviewPanel extends JPanel
 	}
 
 	private void updateItemRequirementsPanels(JPanel listPanel, List<QuestRequirementPanel> panels,
-										  List<ItemRequirement> requirements)
+											  List<ItemRequirement> requirements)
 	{
 		if (requirements != null)
 		{
 			for (Requirement generalRecommend : requirements)
 			{
-				QuestRequirementPanel reqPanel = new QuestRequirementPanel(generalRecommend);
+				QuestRequirementPanel reqPanel = new QuestRequirementPanel(generalRecommend, questManager);
 				panels.add(reqPanel);
 				listPanel.add(new QuestRequirementWrapperPanel(reqPanel));
 
@@ -567,13 +662,13 @@ public class QuestOverviewPanel extends JPanel
 
 	private void updateExternalResourcesPanel(QuestHelper quest)
 	{
-		List<ExternalQuestResources> externalResourcesList;
+		List<String> externalResourcesList;
 		try
 		{
-			externalResourcesList = Collections.singletonList(ExternalQuestResources.valueOf(quest.getQuest().name().toUpperCase()));
+			externalResourcesList = Collections.singletonList(ExternalQuestResources.valueOf(quest.getQuest().name().toUpperCase()).getWikiURL());
 		} catch (Exception e)
 		{
-			return;
+			externalResourcesList = Collections.singletonList("https://oldschool.runescape.wiki/w/" + StringUtils.lowerCase(URLEncoder.encode(quest.getQuest().name(), StandardCharsets.UTF_8)));
 		}
 		JLabel externalResources = new JLabel();
 		externalResources.setForeground(Color.GRAY);
@@ -587,25 +682,27 @@ public class QuestOverviewPanel extends JPanel
 		wikiBtn.setToolTipText("Open the official wiki in your browser.");
 
 		//Button variable properties
-		wikiBtn.setText("<html><body>" + quest.getQuest().getName() + " Wiki </body></html>");
+		wikiBtn.setText("<html><body>Open RuneScape Wiki</body></html>");
 
-		wikiBtn.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mouseEntered(java.awt.event.MouseEvent evt) {
+		wikiBtn.addMouseListener(new java.awt.event.MouseAdapter()
+		{
+			public void mouseEntered(java.awt.event.MouseEvent evt)
+			{
 				wikiBtn.setForeground(Color.blue.brighter().brighter().brighter());
-				wikiBtn.setText("<html><body style = 'text-decoration:underline'>" + quest.getQuest().getName() + " Wiki </body></html>");
+				wikiBtn.setText("<html><body style='text-decoration:underline'>Open RuneScape Wiki</body></html>");
 			}
 
-			public void mouseExited(java.awt.event.MouseEvent evt) {
+			public void mouseExited(java.awt.event.MouseEvent evt)
+			{
 				wikiBtn.setForeground(Color.white);
-				wikiBtn.setText("<html><body>" + quest.getQuest().getName() + " Wiki </body></html>");
+				wikiBtn.setText("<html><body>Open RuneScape Wiki</body></html>");
 			}
 		});
 
 		//Access URL values from ExternalQuestResources enum class
-		for (ExternalQuestResources externalResource : externalResourcesList) {
-			if (externalResource.getWikiURL().length() > 0) {
-				wikiBtn.addActionListener((ev) -> LinkBrowser.browse(externalResource.getWikiURL()));
-			}
+		for (String externalResource : externalResourcesList)
+		{
+			wikiBtn.addActionListener((ev) -> LinkBrowser.browse(externalResource));
 		}
 
 		externalQuestResourcesPanel.removeAll();

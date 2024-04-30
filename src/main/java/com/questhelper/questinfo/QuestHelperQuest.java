@@ -78,16 +78,17 @@ import com.questhelper.helpers.miniquests.hisfaithfulservants.BarrowsHelper;
 import com.questhelper.helpers.miniquests.hisfaithfulservants.HisFaithfulServants;
 import com.questhelper.helpers.mischelpers.allneededitems.AllNeededItems;
 import com.questhelper.helpers.mischelpers.herbrun.HerbRun;
+import com.questhelper.helpers.mischelpers.strongholdofsecurity.StrongholdOfSecurity;
 import com.questhelper.helpers.quests.akingdomdivided.AKingdomDivided;
 import com.questhelper.helpers.miniquests.alfredgrimhandsbarcrawl.AlfredGrimhandsBarcrawl;
 import com.questhelper.helpers.quests.anightatthetheatre.ANightAtTheTheatre;
 import com.questhelper.helpers.quests.animalmagnetism.AnimalMagnetism;
 import com.questhelper.helpers.quests.anothersliceofham.AnotherSliceOfHam;
 import com.questhelper.helpers.quests.aporcineofinterest.APorcineOfInterest;
-import com.questhelper.helpers.miniquests.architecturalalliance.ArchitecturalAlliance;
 import com.questhelper.helpers.quests.asoulsbane.ASoulsBane;
 import com.questhelper.helpers.quests.atailoftwocats.ATailOfTwoCats;
 import com.questhelper.helpers.quests.atasteofhope.ATasteOfHope;
+import com.questhelper.helpers.quests.atfirstlight.AtFirstLight;
 import com.questhelper.helpers.quests.bearyoursoul.BearYourSoul;
 import com.questhelper.helpers.quests.belowicemountain.BelowIceMountain;
 import com.questhelper.helpers.quests.beneathcursedsands.BeneathCursedSands;
@@ -97,6 +98,7 @@ import com.questhelper.helpers.quests.biohazard.Biohazard;
 import com.questhelper.helpers.quests.blackknightfortress.BlackKnightFortress;
 import com.questhelper.helpers.quests.bonevoyage.BoneVoyage;
 import com.questhelper.helpers.quests.cabinfever.CabinFever;
+import com.questhelper.helpers.quests.childrenofthesun.ChildrenOfTheSun;
 import com.questhelper.helpers.quests.clientofkourend.ClientOfKourend;
 import com.questhelper.helpers.quests.clocktower.ClockTower;
 import com.questhelper.helpers.quests.coldwar.ColdWar;
@@ -108,6 +110,7 @@ import com.questhelper.helpers.miniquests.daddyshome.DaddysHome;
 import com.questhelper.helpers.quests.darknessofhallowvale.DarknessOfHallowvale;
 import com.questhelper.helpers.quests.deathplateau.DeathPlateau;
 import com.questhelper.helpers.quests.deathtothedorgeshuun.DeathToTheDorgeshuun;
+import com.questhelper.helpers.quests.defenderofvarrock.DefenderOfVarrock;
 import com.questhelper.helpers.quests.demonslayer.DemonSlayer;
 import com.questhelper.helpers.quests.deserttreasure.DesertTreasure;
 import com.questhelper.helpers.quests.deserttreasureii.DesertTreasureII;
@@ -179,6 +182,7 @@ import com.questhelper.helpers.quests.naturespirit.NatureSpirit;
 import com.questhelper.helpers.quests.observatoryquest.ObservatoryQuest;
 import com.questhelper.helpers.quests.olafsquest.OlafsQuest;
 import com.questhelper.helpers.quests.onesmallfavour.OneSmallFavour;
+import com.questhelper.helpers.quests.perilousmoon.PerilousMoon;
 import com.questhelper.helpers.quests.piratestreasure.PiratesTreasure;
 import com.questhelper.helpers.quests.plaguecity.PlagueCity;
 import com.questhelper.helpers.quests.priestinperil.PriestInPeril;
@@ -249,6 +253,7 @@ import com.questhelper.helpers.miniquests.themagearenaii.TheMageArenaII;
 import com.questhelper.helpers.quests.thepathofglouphrie.ThePathOfGlouphrie;
 import com.questhelper.helpers.quests.thequeenofthieves.TheQueenOfThieves;
 import com.questhelper.helpers.quests.therestlessghost.TheRestlessGhost;
+import com.questhelper.helpers.quests.theribbitingtaleofalilypadlabourdispute.TheRibbitingTaleOfALilyPadLabourDispute;
 import com.questhelper.helpers.quests.theslugmenace.TheSlugMenace;
 import com.questhelper.helpers.quests.thetouristtrap.TheTouristTrap;
 import com.questhelper.helpers.quests.throneofmiscellania.ThroneOfMiscellania;
@@ -257,6 +262,7 @@ import com.questhelper.helpers.quests.treegnomevillage.TreeGnomeVillage;
 import com.questhelper.helpers.quests.tribaltotem.TribalTotem;
 import com.questhelper.helpers.quests.trollromance.TrollRomance;
 import com.questhelper.helpers.quests.trollstronghold.TrollStronghold;
+import com.questhelper.helpers.quests.twilightspromise.TwilightsPromise;
 import com.questhelper.helpers.quests.undergroundpass.UndergroundPass;
 import com.questhelper.helpers.quests.vampyreslayer.VampyreSlayer;
 import com.questhelper.helpers.quests.wanted.Wanted;
@@ -402,7 +408,6 @@ public enum QuestHelperQuest
 	RAG_AND_BONE_MAN_I(new RagAndBoneManI(), Quest.RAG_AND_BONE_MAN_I, QuestVarPlayer.QUEST_RAG_AND_BONE_MAN_I, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
 	RAG_AND_BONE_MAN_II(new RagAndBoneManII(), Quest.RAG_AND_BONE_MAN_II, QuestVarPlayer.QUEST_RAG_AND_BONE_MAN_II, QuestDetails.Type.P2P, QuestDetails.Difficulty.EXPERIENCED),
 	RATCATCHERS(new RatCatchers(), Quest.RATCATCHERS, QuestVarbits.QUEST_RATCATCHERS, QuestDetails.Type.P2P, QuestDetails.Difficulty.INTERMEDIATE),
-	RECIPE_FOR_DISASTER(new RFDStart(), Quest.RECIPE_FOR_DISASTER, QuestVarbits.QUEST_RECIPE_FOR_DISASTER, QuestDetails.Type.P2P, QuestDetails.Difficulty.GRANDMASTER),
 	RECIPE_FOR_DISASTER_START(new RFDStart(), Quest.RECIPE_FOR_DISASTER.getId(), "RFD - Start", Arrays.asList("recipe", "for", "disaster"), QuestVarbits.QUEST_RECIPE_FOR_DISASTER, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
 	RECIPE_FOR_DISASTER_DWARF(new RFDDwarf(), Quest.RECIPE_FOR_DISASTER.getId(), "RFD - Dwarf", Arrays.asList("recipe", "for", "disaster"), QuestVarbits.QUEST_RECIPE_FOR_DISASTER_DWARF, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
 	RECIPE_FOR_DISASTER_WARTFACE_AND_BENTNOZE(new RFDGoblins(), Quest.RECIPE_FOR_DISASTER.getId(), "RFD - Wartface & Bentnoze", Arrays.asList("recipe", "for", "disaster"), QuestVarbits.QUEST_RECIPE_FOR_DISASTER_WARTFACE_AND_BENTNOZE, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
@@ -462,10 +467,14 @@ public enum QuestHelperQuest
 	A_NIGHT_AT_THE_THEATRE(new ANightAtTheTheatre(), Quest.A_NIGHT_AT_THE_THEATRE, QuestVarbits.QUEST_A_NIGHT_AT_THE_THEATRE, QuestDetails.Type.P2P, QuestDetails.Difficulty.MASTER),
 	THE_GARDEN_OF_DEATH(new TheGardenOfDeath(), Quest.THE_GARDEN_OF_DEATH, QuestVarbits.QUEST_THE_GARDEN_OF_DEATH, QuestDetails.Type.P2P, QuestDetails.Difficulty.INTERMEDIATE),
 	SECRETS_OF_THE_NORTH(new SecretsOfTheNorth(), Quest.SECRETS_OF_THE_NORTH, QuestVarbits.QUEST_SECRETS_OF_THE_NORTH, QuestDetails.Type.P2P, QuestDetails.Difficulty.MASTER),
-
+	CHILDREN_OF_THE_SUN(new ChildrenOfTheSun(), Quest.CHILDREN_OF_THE_SUN, QuestVarbits.QUEST_CHILDREN_OF_THE_SUN, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
+	DEFENDER_OF_VARROCK(new DefenderOfVarrock(), Quest.DEFENDER_OF_VARROCK, QuestVarbits.QUEST_DEFENDER_OF_VARROCK, QuestDetails.Type.P2P, QuestDetails.Difficulty.EXPERIENCED),
+	AT_FIRST_LIGHT(new AtFirstLight(), Quest.AT_FIRST_LIGHT, QuestVarbits.QUEST_AT_FIRST_LIGHT, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
+	PERILOUS_MOON(new PerilousMoon(), Quest.PERILOUS_MOONS, QuestVarbits.QUEST_PERILOUS_MOONS, QuestDetails.Type.P2P, QuestDetails.Difficulty.MASTER),
+	THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE(new TheRibbitingTaleOfALilyPadLabourDispute(), Quest.THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE, QuestVarbits.QUEST_THE_RIBBITING_TALE_OF_A_LILY_PAD_LABOUR_DISPUTE, QuestDetails.Type.P2P, QuestDetails.Difficulty.NOVICE),
+	TWILIGHTS_PROMISE(new TwilightsPromise(), Quest.TWILIGHTS_PROMISE, QuestVarbits.QUEST_TWILIGHTS_PROMISE, QuestDetails.Type.P2P, QuestDetails.Difficulty.INTERMEDIATE),
 	//Miniquests
 	ENTER_THE_ABYSS(new EnterTheAbyss(), Quest.ENTER_THE_ABYSS, QuestVarPlayer.QUEST_ENTER_THE_ABYSS, QuestDetails.Type.MINIQUEST, QuestDetails.Difficulty.MINIQUEST),
-	ARCHITECTURAL_ALLIANCE(new ArchitecturalAlliance(), Quest.ARCHITECTURAL_ALLIANCE, QuestVarbits.QUEST_ARCHITECTURAL_ALLIANCE, QuestDetails.Type.MINIQUEST, QuestDetails.Difficulty.MINIQUEST),
 	BEAR_YOUR_SOUL(new BearYourSoul(), Quest.BEAR_YOUR_SOUL, QuestVarbits.QUEST_BEAR_YOUR_SOUL, QuestDetails.Type.MINIQUEST, QuestDetails.Difficulty.MINIQUEST),
 	ALFRED_GRIMHANDS_BARCRAWL(new AlfredGrimhandsBarcrawl(), Quest.ALFRED_GRIMHANDS_BARCRAWL, QuestVarPlayer.QUEST_ALFRED_GRIMHANDS_BARCRAWL, QuestDetails.Type.MINIQUEST, QuestDetails.Difficulty.MINIQUEST),
 	CURSE_OF_THE_EMPTY_LORD(new CurseOfTheEmptyLord(), Quest.CURSE_OF_THE_EMPTY_LORD, QuestVarbits.QUEST_CURSE_OF_THE_EMPTY_LORD, QuestDetails.Type.MINIQUEST, QuestDetails.Difficulty.MINIQUEST),
@@ -627,6 +636,8 @@ public enum QuestHelperQuest
 		QuestDetails.Difficulty.GENERIC),
 	HERB_RUN(new HerbRun(), "Herb run", QuestVarbits.CUTSCENE, -1, QuestDetails.Type.GENERIC, QuestDetails.Difficulty.GENERIC),
 	BARROWS_HELPER(new BarrowsHelper(), "Barrows helper", QuestVarbits.CUTSCENE, -1, QuestDetails.Type.GENERIC, QuestDetails.Difficulty.GENERIC),
+	STRONGHOLD_OF_SECURITY(new StrongholdOfSecurity(), "Stronghold of Security", QuestVarbits.STRONGHOLD_OF_SECURITY, 1,
+		QuestDetails.Type.GENERIC, QuestDetails.Difficulty.GENERIC),
 	// Skill
 	AGILITY(new Agility(), "Agility", Skill.AGILITY, 99, QuestDetails.Type.SKILL_P2P, QuestDetails.Difficulty.SKILL),
 	WOODCUTTING_MEMBER(new WoodcuttingMember(), "Woodcutting - Member", Skill.WOODCUTTING, 99, QuestDetails.Type.SKILL_P2P, QuestDetails.Difficulty.SKILL),

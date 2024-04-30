@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 William <https://github.com/monsterxsync>
+ * Copyright (c) 2024, Zoinkwiz <https://github.com/Zoinkwiz>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,22 +22,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.questhelper.requirements.player;
+package com.questhelper.util.worldmap;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import net.runelite.api.Varbits;
+import lombok.Value;
+import net.runelite.api.coords.WorldPoint;
 
-@RequiredArgsConstructor
-@Getter
-public enum Favour
+/**
+ * This class is useful for dealing with the world map, where the viewed area is relevant to the placement of a {@link WorldPoint}.
+ */
+@Value
+public class WorldPointWithWorldMapArea
 {
-	ARCEUUS("Arceuus", Varbits.KOUREND_FAVOR_ARCEUUS),
-	HOSIDIUS("Hosidius", Varbits.KOUREND_FAVOR_HOSIDIUS),
-	LOVAKENGJ("Lovakengj", Varbits.KOUREND_FAVOR_LOVAKENGJ),
-	PISCARILIUS("Piscarilius", Varbits.KOUREND_FAVOR_PISCARILIUS),
-	SHAYZIEN("Shayzien", Varbits.KOUREND_FAVOR_SHAYZIEN);
+	WorldPoint worldPoint;
 
-	private final String name;
-	private final int varbit;
+	WorldMapArea worldMapArea;
 }
+

@@ -30,8 +30,6 @@ import com.questhelper.requirements.Requirement;
 import com.questhelper.requirements.zone.ZoneRequirement;
 import com.questhelper.requirements.conditional.Conditions;
 import com.questhelper.requirements.item.TeleportItemRequirement;
-import com.questhelper.requirements.player.Favour;
-import com.questhelper.requirements.player.FavourRequirement;
 import com.questhelper.requirements.player.SkillRequirement;
 import com.questhelper.requirements.quest.QuestRequirement;
 import com.questhelper.requirements.util.Operation;
@@ -141,8 +139,7 @@ public class BoneVoyage extends BasicQuestHelper
 	public void setupRequirements()
 	{
 		canEnterGuild = new Conditions(
-			new SkillRequirement(Skill.WOODCUTTING, 60, true),
-			new FavourRequirement(Favour.HOSIDIUS, 75)
+			new SkillRequirement(Skill.WOODCUTTING, 60, true)
 		);
 
 		onBoat = new ZoneRequirement(boat, boatSailing);
@@ -244,10 +241,10 @@ public class BoneVoyage extends BasicQuestHelper
 			"Talk to the Odd Old Man north of the Dig Site.");
 		talkToOddOldMan.addDialogSteps("Talk about lucky charms.", "I'm making a cursed voyage.");
 		talkToApoth = new NpcStep(this, NpcID.APOTHECARY, new WorldPoint(3195, 3405, 0),
-			"Talk the Apothecary in south west Varrock.", marrentillPotionUnf, vodka2);
+			"Talk to the Apothecary in south west Varrock.", marrentillPotionUnf, vodka2);
 		talkToApoth.addDialogSteps("Talk about something else.", "Talk about Bone Voyage.");
 		talkToApothAgain = new NpcStep(this, NpcID.APOTHECARY, new WorldPoint(3195, 3405, 0),
-			"Talk the Apothecary again.", marrentillPotionUnf, vodka2);
+			"Talk to the Apothecary again.", marrentillPotionUnf, vodka2);
 		talkToApothAgain.addDialogSteps("Talk about something else.", "Talk about Bone Voyage.");
 		boardBargeWithPotionAndCharm = new NpcStep(this, NpcID.BARGE_GUARD_8013, new WorldPoint(3362, 3446, 0),
 			"Board the barge.", boneCharm, potionOfSealegs);

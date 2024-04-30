@@ -232,7 +232,7 @@ public class DesertTreasure extends BasicQuestHelper
 
 		spikedBootsEquipped = spikedBoots.equipped();
 
-		climbingBoots = new ItemRequirement("Climbing boots", ItemID.CLIMBING_BOOTS).isNotConsumed();
+		climbingBoots = new ItemRequirement("Climbing boots", ItemCollections.CLIMBING_BOOTS).isNotConsumed();
 		faceMask = new ItemRequirement("Facemask (or other face covering)", ItemID.FACEMASK).equipped().isNotConsumed();
 		faceMask.setTooltip("Slayer mask and gas mask can also be used.");
 		faceMask.addAlternates(ItemID.FACEMASK, ItemID.SLAYER_HELMET, ItemID.SLAYER_HELMET_I, ItemID.SLAYER_HELMET_I_25177, ItemID.GAS_MASK);
@@ -525,7 +525,8 @@ public class DesertTreasure extends BasicQuestHelper
 
 		talkToMalakForDiamond = new NpcStep(this, NpcID.MALAK, new WorldPoint(3496, 3479, 0), "Return to Malak in Canifis to get the Blood Diamond.");
 		talkToMalakForDiamond.addTeleport(canifisTeleport);
-		giveCakeToTroll = new NpcStep(this, NpcID.TROLL_CHILD_697, new WorldPoint(2835, 3740, 0), "Use a cake on the Troll Child north of Trollheim.", cake, spikedBoots);
+		giveCakeToTroll = new NpcStep(this, NpcID.TROLL_CHILD_697, new WorldPoint(2835, 3740, 0),
+			"Use a cake on the Troll Child north of Trollheim.", cake, climbingBoots.equipped(), spikedBoots);
 		giveCakeToTroll.addIcon(ItemID.CAKE);
 		giveCakeToTroll.addTeleport(trollheimTeleport);
 		talkToChildTroll = new NpcStep(this, NpcID.TROLL_CHILD, new WorldPoint(2835, 3740, 0), "Talk to the Troll Child north of Trollheim.");

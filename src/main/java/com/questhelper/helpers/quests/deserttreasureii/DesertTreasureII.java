@@ -24,11 +24,11 @@
  */
 package com.questhelper.helpers.quests.deserttreasureii;
 
-import com.questhelper.tools.Icon;
 import com.questhelper.collections.ItemCollections;
 import com.questhelper.questinfo.QuestDescriptor;
 import com.questhelper.questinfo.QuestHelperQuest;
 import com.questhelper.questinfo.QuestVarbits;
+import com.questhelper.requirements.player.PrayerRequirement;
 import com.questhelper.requirements.zone.Zone;
 import com.questhelper.bank.banktab.BankSlotIcons;
 import com.questhelper.panel.PanelDetails;
@@ -60,13 +60,13 @@ import com.questhelper.steps.NpcStep;
 import com.questhelper.steps.ObjectStep;
 import com.questhelper.steps.QuestStep;
 
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 import net.runelite.api.ItemID;
 import net.runelite.api.NpcID;
 import net.runelite.api.NullObjectID;
 import net.runelite.api.ObjectID;
+import net.runelite.api.Prayer;
 import net.runelite.api.QuestState;
 import net.runelite.api.Skill;
 import net.runelite.api.coords.WorldPoint;
@@ -95,6 +95,8 @@ public class DesertTreasureII extends BasicQuestHelper
 		shadowBurstRunes, smokeBurstRunes, allBursts, uncharedCells, chargedCells, xericTalisman,
 		facemask, staminaPotions, eyeTeleport, rangedCombatGear, food, prayerPotions, nardahTeleport,
 		arclight, freezes, icyBasalt, meleeCombatGear, ringOfVisibility, lassarTeleport, magicCombatGear;
+
+	PrayerRequirement protectFromMagic;
 
 	ItemRequirement whisperersMedallion, vardorvisMedallion, sucellusMedallion, perseriyaMedallion, hairClip, medallion;
 
@@ -400,6 +402,8 @@ public class DesertTreasureII extends BasicQuestHelper
 		lassarTeleport.addAlternates(ItemID.LASSAR_TELEPORT);
 
 		ringOfVisibility = new ItemRequirement("Ring of visibility", ItemID.RING_OF_VISIBILITY);
+
+		protectFromMagic = new PrayerRequirement("Protect from Magic", Prayer.PROTECT_FROM_MAGIC);
 
 		/* Quest Items */
 		uncharedCells = new ItemRequirement("Uncharged cells", ItemID.UNCHARGED_CELL_28402);
@@ -715,9 +719,9 @@ public class DesertTreasureII extends BasicQuestHelper
 		talkToElissa.addTeleport(senntistenTeleport);
 
 		vardorvisSteps = new VardorvisSteps(this, talkToElissa, questBank);
-		perseriyaSteps = new PerseriyaSteps(this, new DetailedQuestStep(this, "Do Perseriya steps."), runeliteObjectManager);
+		perseriyaSteps = new PerseriyaSteps(this, new DetailedQuestStep(this, "Do Perseriya steps."));
 		sucellusSteps = new SucellusSteps(this, new DetailedQuestStep(this, "Do Sucellus steps."));
-		whispererSteps = new WhispererSteps(this, new DetailedQuestStep(this, "Do Whisperer steps."), questBank, runeliteObjectManager);
+		whispererSteps = new WhispererSteps(this, new DetailedQuestStep(this, "Do Whisperer steps."), questBank);
 
 		returnToDesertWithFinalMedallion = new ObjectStep(this, ObjectID.VAULT_DOOR_46743,
 			new WorldPoint(3511, 2971, 0),
@@ -738,7 +742,7 @@ public class DesertTreasureII extends BasicQuestHelper
 		investigateAltar = new ObjectStep(this, ObjectID.ALTAR_48779, new WorldPoint(3086, 9260, 0),
 			"Inspect the altar in the north-west room.");
 		fightMysteriousFigure = new NpcStep(this, NpcID.MYSTERIOUS_FIGURE_12301, "Fight the Mysterious Figure. " +
-			"When frozen, spam-click to move away to avoid taking damage.");
+			"When frozen, spam-click to move away to avoid taking damage. Use Protect from Magic for the entire fight.", protectFromMagic);
 		enterAncientVault = new ObjectStep(this, ObjectID.VAULT_DOOR_46743, new WorldPoint(3511, 2971, 0),
 			"Enter to the Vault door north-east of Nardah with the final medallion, ready to fight.",
 			whisperersMedallion.hideConditioned(finishedWhisperer),
@@ -775,7 +779,7 @@ public class DesertTreasureII extends BasicQuestHelper
 		defeatKetla = new NpcStep(this, NpcID.KETLA_THE_UNWORTHY, new WorldPoint(3296, 6444, 0),
 			"Defeat Ketla the Unworthy. Protect from ranged. She will spawn shadow clones, which you should hide behind whenever she has a skull above her.");
 		((NpcStep) defeatKetla).addAlternateNpcs(NpcID.KETLA_THE_UNWORTHY_12330);
-		defeatKasonde = new NpcStep(this, NpcID.THE_FORSAKEN_ASSASSIN, new WorldPoint(3296, 6444, 0),
+		defeatKasonde = new NpcStep(this, NpcID.KASONDE_THE_CRAVEN, new WorldPoint(3296, 6444, 0),
 			"Defeat Kasonde the Craven. Protect from ranged if at a distance or melee if up close. The fight is similar to earlier in the quest.");
 		((NpcStep) defeatKasonde).addAlternateNpcs(NpcID.KASONDE_THE_CRAVEN_12332);
 		defeatPersten = new NpcStep(this, NpcID.PERSTEN_THE_DECEITFUL, new WorldPoint(3296, 6444, 0),
@@ -806,6 +810,18 @@ public class DesertTreasureII extends BasicQuestHelper
 	{
 		ArrayList<String> reqs = new ArrayList<>();
 		reqs.add("Ancient Guardian (level 153)");
+		reqs.add("Vardorvis (level 553)");
+		reqs.add("Kasonde (level 193)");
+		reqs.add("A number of lesser demons, black demons, and abyssal creatures");
+		reqs.add("The Leviathan (level 577)");
+		reqs.add("Jhallan (level 491)");
+		reqs.add("Duke Sucellus (level 519)");
+		reqs.add("The Whisperer (level 568)");
+		reqs.add("Mysterious Figure (level 271)");
+		reqs.add("The Forsaken Assassin (level 252)");
+		reqs.add("Ketla the Unworthy (level 236)");
+		reqs.add("Kasonde the Craven (level 221)");
+		reqs.add("Persten the Deceitful (level 264)");
 		return reqs;
 	}
 
@@ -839,7 +855,7 @@ public class DesertTreasureII extends BasicQuestHelper
 		allSteps.add(new PanelDetails("The Vault",
 			Arrays.asList(attemptToEnterVaultDoor, talkToAsgarnia, inspectPlaque, inspectStatueNE,
 				inspectStatueNW, inspectStatueSW, inspectStatueSE, talkToAsgarniaAgain),
-			Arrays.asList(ancientMagicksActive),
+			List.of(ancientMagicksActive),
 			Arrays.asList(nardahTeleport, waterSource, senntistenTeleport)));
 
 		allSteps.add(new PanelDetails("Learning of the Ancients",
@@ -849,11 +865,11 @@ public class DesertTreasureII extends BasicQuestHelper
 				searchCrateForCharges, imbueAtAltar, chargeGolem, solveGolemPuzzle, operateGolem, talkToBanikanAfterGolem,
 				operateGolemFrostenhorn),
 			Arrays.asList(combatGear, allBursts),
-			Arrays.asList(senntistenTeleport)));
+			List.of(senntistenTeleport)));
 
 		PanelDetails vardorvisPanel = new PanelDetails("Vardorvis",
 			vardorvisSteps.getDisplaySteps(),
-			Arrays.asList(combatGear),
+			Collections.singletonList(combatGear),
 			Arrays.asList(xericTalisman, freezes));
 		vardorvisPanel.setLockingStep(vardorvisSteps);
 		allSteps.add(vardorvisPanel);
@@ -866,15 +882,15 @@ public class DesertTreasureII extends BasicQuestHelper
 		allSteps.add(perseriyaPanel);
 		allSteps.add(new PanelDetails("Perseriya - Room 1",
 			perseriyaSteps.getRoom1Steps(),
-			Arrays.asList(facemask),
+			Collections.singletonList(facemask),
 			Arrays.asList(eyeTeleport, staminaPotions, arclight)));
 		allSteps.add(new PanelDetails("Perseriya - Room 2",
 			perseriyaSteps.getRoom2Steps(),
-			Arrays.asList(facemask),
+			List.of(facemask),
 			Arrays.asList(eyeTeleport, staminaPotions, arclight)));
 		allSteps.add(new PanelDetails("Perseriya - Room 3",
 			perseriyaSteps.getRoom3Steps(),
-			Arrays.asList(facemask),
+			List.of(facemask),
 			Arrays.asList(eyeTeleport, staminaPotions, arclight)));
 		allSteps.add(new PanelDetails("Perseriya - The battle",
 			perseriyaSteps.getBattleSteps(),

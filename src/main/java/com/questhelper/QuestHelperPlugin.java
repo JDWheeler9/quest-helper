@@ -38,23 +38,25 @@ import com.questhelper.panel.QuestHelperPanel;
 import com.questhelper.questhelpers.QuestDetails;
 import com.questhelper.questhelpers.QuestHelper;
 import com.questhelper.questinfo.QuestHelperQuest;
+import com.questhelper.requirements.Requirement;
 import com.questhelper.requirements.item.ItemRequirement;
+import com.questhelper.requirements.player.SkillRequirement;
 import com.questhelper.runeliteobjects.Cheerer;
 import com.questhelper.runeliteobjects.GlobalFakeObjects;
 import com.questhelper.statemanagement.GameStateManager;
 import com.questhelper.runeliteobjects.RuneliteConfigSetter;
 import com.questhelper.runeliteobjects.extendedruneliteobjects.RuneliteObjectManager;
 import com.google.inject.Module;
+import com.questhelper.util.worldmap.WorldMapAreaManager;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -70,6 +72,9 @@ import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.QuestState;
+import net.runelite.api.Skill;
+import net.runelite.api.VarPlayer;
+import net.runelite.api.WorldType;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameStateChanged;
@@ -85,7 +90,10 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ClientShutdown;
 import net.runelite.client.events.ConfigChanged;
+import net.runelite.client.events.ProfileChanged;
+import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.SkillIconManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.bank.BankSearch;
@@ -151,6 +159,9 @@ public class QuestHelperPlugin extends Plugin
 	private QuestManager questManager;
 
 	@Inject
+	private WorldMapAreaManager worldMapAreaManager;
+
+	@Inject
 	private QuestMenuHandler questMenuHandler;
 
 	@Inject
@@ -168,13 +179,16 @@ public class QuestHelperPlugin extends Plugin
 	@Inject
 	GameStateManager gameStateManager;
 
+	@Inject
+	public SkillIconManager skillIconManager;
+
 	private QuestHelperPanel panel;
 
 	private NavigationButton navButton;
 
 	public Map<String, QuestHelper> backgroundHelpers = new HashMap<>();
-	public SortedMap<QuestHelperQuest, List<ItemRequirement>> itemRequirements = new TreeMap<>();
-	public SortedMap<QuestHelperQuest, List<ItemRequirement>> itemRecommended = new TreeMap<>();
+
+	boolean profileChanged;
 
 
 	// TODO: Use this for item checks
@@ -184,7 +198,7 @@ public class QuestHelperPlugin extends Plugin
 	@Getter
 	private int lastTickBankUpdated = -1;
 
-	private final Collection<String> configEvents = Arrays.asList("orderListBy", "filterListBy", "questDifficulty", "showCompletedQuests", "");
+	private final Collection<String> configEvents = Arrays.asList("orderListBy", "filterListBy", "questDifficulty", "showCompletedQuests");
 	private final Collection<String> configItemEvents = Arrays.asList("highlightNeededQuestItems", "highlightNeededMiniquestItems", "highlightNeededAchievementDiaryItems");
 
 	@Provides
@@ -197,6 +211,7 @@ public class QuestHelperPlugin extends Plugin
 	protected void startUp() throws IOException
 	{
 		questBankManager.startUp(injector, eventBus);
+		eventBus.register(worldMapAreaManager);
 
 		injector.injectMembers(gameStateManager);
 		eventBus.register(gameStateManager);
@@ -223,13 +238,9 @@ public class QuestHelperPlugin extends Plugin
 		clientToolbar.addNavigation(navButton);
 
 		clientThread.invokeLater(() -> {
-			for (QuestHelperQuest questHelperQuest : QuestHelperQuest.values())
-			{
-				questHelperQuest.getQuestHelper().setupRequirements();
-			}
-
 			if (client.getGameState() == GameState.LOGGED_IN)
 			{
+				setupRequirements();
 				questManager.setupOnLogin();
 				GlobalFakeObjects.createNpcs(client, runeliteObjectManager, configManager, config);
 			}
@@ -243,6 +254,7 @@ public class QuestHelperPlugin extends Plugin
 
 		eventBus.unregister(gameStateManager);
 		eventBus.unregister(runeliteObjectManager);
+		eventBus.unregister(worldMapAreaManager);
 		questOverlayManager.shutDown();
 
 		clientToolbar.removeNavigation(navButton);
@@ -285,15 +297,32 @@ public class QuestHelperPlugin extends Plugin
 			SwingUtilities.invokeLater(() -> panel.refresh(Collections.emptyList(), true, new HashMap<>()));
 			questBankManager.emptyState();
 			questManager.shutDownQuest(true);
+			profileChanged = true;
 		}
 
-		if (state == GameState.LOGGED_IN)
+		if (state == GameState.LOGGED_IN && profileChanged)
 		{
+			profileChanged = false;
+			questManager.shutDownQuest(true);
+			setupRequirements();
 			newVersionManager.updateChatWithNotificationIfNewVersion();
-
 			GlobalFakeObjects.createNpcs(client, runeliteObjectManager, configManager, config);
 			questBankManager.setUnknownInitialState();
 			clientThread.invokeLater(() -> questManager.setupOnLogin());
+		}
+	}
+
+	@Subscribe
+	private void onRuneScapeProfileChanged(RuneScapeProfileChanged ev)
+	{
+		profileChanged = true;
+	}
+
+	private void setupRequirements()
+	{
+		for (QuestHelperQuest questHelperQuest : QuestHelperQuest.values())
+		{
+			questHelperQuest.getQuestHelper().setupRequirements();
 		}
 	}
 
@@ -303,6 +332,14 @@ public class QuestHelperPlugin extends Plugin
 		if (!(client.getGameState() == GameState.LOGGED_IN))
 		{
 			return;
+		}
+
+		if (client.getWorldType().contains(WorldType.QUEST_SPEEDRUNNING)
+			&& event.getVarpId() == VarPlayer.IN_RAID_PARTY
+			&& event.getValue() == 0
+			&& client.getGameState() == GameState.LOGGED_IN)
+		{
+			questBankManager.updateBankForQuestSpeedrunningWorld();
 		}
 
 		questManager.handleVarbitChanged();
@@ -315,7 +352,7 @@ public class QuestHelperPlugin extends Plugin
 
 		if (event.getGroup().equals(QuestHelperConfig.QUEST_BACKGROUND_GROUP))
 		{
-			clientThread.invokeLater(this::updateQuestList);
+			clientThread.invokeLater(questManager::updateQuestList);
 		}
 
 		if (!event.getGroup().equals(QuestHelperConfig.QUEST_HELPER_GROUP))
@@ -337,9 +374,9 @@ public class QuestHelperPlugin extends Plugin
 			});
 		}
 
-		if (configEvents.contains(event.getKey()))
+		if (configEvents.contains(event.getKey()) || event.getKey().contains("skillfilter"))
 		{
-			clientThread.invokeLater(this::updateQuestList);
+			clientThread.invokeLater(questManager::updateQuestList);
 		}
 
 		if (configItemEvents.contains(event.getKey()))
@@ -404,27 +441,19 @@ public class QuestHelperPlugin extends Plugin
 		return questBankManager.getBankTagService().getPluginBankTagItemsForSections(false);
 	}
 
-	public void updateQuestList()
-	{
-		if (client.getGameState() == GameState.LOGGED_IN)
-		{
-			List<QuestHelper> filteredQuests = QuestHelperQuest.getQuestHelpers()
-				.stream()
-				.filter(config.filterListBy())
-				.filter(config.difficulty())
-				.filter(QuestDetails::showCompletedQuests)
-				.sorted(config.orderListBy())
-				.collect(Collectors.toList());
-			Map<QuestHelperQuest, QuestState> completedQuests = QuestHelperQuest.getQuestHelpers()
-				.stream()
-				.collect(Collectors.toMap(QuestHelper::getQuest, q -> q.getState(client)));
-			SwingUtilities.invokeLater(() -> panel.refresh(filteredQuests, false, completedQuests, config.orderListBy().getSections()));
-		}
-	}
-
 	public QuestHelper getSelectedQuest()
 	{
 		return questManager.getSelectedQuest();
+	}
+
+	public Map<QuestHelperQuest, List<ItemRequirement>> getItemRequirements()
+	{
+		return questManager.itemRequirements;
+	}
+
+	public Map<QuestHelperQuest, List<ItemRequirement>> getItemRecommended()
+	{
+		return questManager.itemRecommended;
 	}
 
 	public List<Integer> itemsToTag()
@@ -475,10 +504,7 @@ public class QuestHelperPlugin extends Plugin
 	public void displayPanel()
 	{
 		SwingUtilities.invokeLater(() -> {
-			if (!navButton.isSelected())
-			{
-				navButton.getOnSelect().run();
-			}
+			clientToolbar.openPanel(navButton);
 		});
 	}
 

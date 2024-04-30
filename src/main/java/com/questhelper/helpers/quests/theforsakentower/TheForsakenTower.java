@@ -30,8 +30,6 @@ import com.questhelper.questinfo.QuestHelperQuest;
 import com.questhelper.requirements.zone.Zone;
 import com.questhelper.panel.PanelDetails;
 import com.questhelper.questhelpers.BasicQuestHelper;
-import com.questhelper.requirements.player.Favour;
-import com.questhelper.requirements.player.FavourRequirement;
 import com.questhelper.requirements.item.ItemRequirement;
 import com.questhelper.requirements.quest.QuestRequirement;
 import com.questhelper.requirements.Requirement;
@@ -46,6 +44,7 @@ import com.questhelper.rewards.QuestPointReward;
 import com.questhelper.steps.ConditionalStep;
 import com.questhelper.steps.NpcStep;
 import com.questhelper.steps.ObjectStep;
+import com.questhelper.steps.PuzzleWrapperStep;
 import com.questhelper.steps.QuestStep;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -196,7 +195,7 @@ public class TheForsakenTower extends BasicQuestHelper
 		inspectGenerator = new ObjectStep(this, NullObjectID.NULL_34589, new WorldPoint(1382, 10219, 0), "Inspect the steam generator in the south of the room", crank);
 		inspectGenerator.addDialogStep("Start the generator.");
 
-		doPowerPuzzle = new PowerPuzzle(this);
+		doPowerPuzzle = new PuzzleWrapperStep(this, new PowerPuzzle(this), "Solve the power puzzle.");
 
 		potionPuzzle = new PotionPuzzle(this);
 		potionPuzzle.setLockingCondition(finishedPotionPuzzle);
@@ -223,8 +222,7 @@ public class TheForsakenTower extends BasicQuestHelper
 	@Override
 	public List<Requirement> getGeneralRequirements()
 	{
-		return Arrays.asList(new FavourRequirement(Favour.LOVAKENGJ, 20),
-			new QuestRequirement(QuestHelperQuest.X_MARKS_THE_SPOT, QuestState.FINISHED),
+		return Arrays.asList(new QuestRequirement(QuestHelperQuest.X_MARKS_THE_SPOT, QuestState.FINISHED),
 			new QuestRequirement(QuestHelperQuest.CLIENT_OF_KOUREND, QuestState.FINISHED));
 	}
 
@@ -247,7 +245,6 @@ public class TheForsakenTower extends BasicQuestHelper
 	{
 		return Arrays.asList(
 				new ItemReward("Coins", ItemID.COINS_995, 6000),
-				new ItemReward("Lovakenj Favour Certificate", ItemID.LOVAKENGJ_FAVOUR_CERTIFICATE, 1),
 				new ItemReward("A page for Kharedst's memoirs.", ItemID.KHAREDSTS_MEMOIRS, 1));
 	}
 

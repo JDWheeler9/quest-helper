@@ -99,8 +99,6 @@ public class WitchsHouse extends BasicQuestHelper
 
 		steps.put(1, getTheMagnet);
 		steps.put(2, getTheMagnet);
-		// TODO: Verify this is correct (I believe reading the diary adds 2 to var values)
-		steps.put(4, getTheMagnet);
 
 		ConditionalStep killExperiment = new ConditionalStep(this, getKey);
 		killExperiment.addStep(new Conditions(inShed, experimentNearby), killWitchsExperiment);
@@ -118,6 +116,7 @@ public class WitchsHouse extends BasicQuestHelper
 		killExperiment.addStep(houseKey.alsoCheckBank(questBank), enterHouse);
 
 		steps.put(3, killExperiment);
+		// TODO: Add 'pick up diary', 'read diary' after step 3
 		steps.put(5, killExperiment);
 
 		ConditionalStep returnBall = new ConditionalStep(this, getKey);
@@ -179,7 +178,7 @@ public class WitchsHouse extends BasicQuestHelper
 	public void setupSteps()
 	{
 		talkToBoy = new NpcStep(this, NpcID.BOY, new WorldPoint(2928, 3456, 0), "Talk to the Boy in Taverley to start.");
-		talkToBoy.addDialogSteps("What's the matter?", "Ok, I'll see what I can do.");
+		talkToBoy.addDialogSteps("What's the matter?", "Ok, I'll see what I can do.", "Yes.");
 		getKey = new ObjectStep(this, ObjectID.POTTED_PLANT_2867, new WorldPoint(2900, 3474, 0), "Look under the potted plant just outside the witch's house.");
 		enterHouse = new ObjectStep(this, ObjectID.DOOR_2861, new WorldPoint(2900, 3473, 0), "Enter the witch's house.", houseKey);
 		goDownstairs = new ObjectStep(this, ObjectID.LADDER_24718, new WorldPoint(2907, 3476, 0), "Go down the ladder to the basement.");
